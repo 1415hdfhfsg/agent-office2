@@ -1,0 +1,5 @@
+# Release 전용 저장소 — 소스코드 push 차단 (README, LICENSE만 추적)
+*
+!README.md
+!LICENSE
+!.gitignore
