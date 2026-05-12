@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tactica TFT - TFT 전적 분석과 덱 판단 도구</title>
+    <meta
+      name="description"
+      content="Tactica TFT는 Teamfight Tactics 플레이어를 위한 전적 분석, 메타 덱 탐색, 경기 복기, 인게임 판단 보조 도구입니다."
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0a0d12;
+        --surface: #111722;
+        --surface-2: #17202d;
+        --text: #f3f6fb;
+        --muted: #a7b2c2;
+        --line: #2a3545;
+        --gold: #d5ac4f;
+        --cyan: #52d0d8;
+        --green: #5fce92;
+        --red: #f06d7f;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+      }
+
+      .shell {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 0 24px;
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        border-bottom: 1px solid rgb(255 255 255 / 0.08);
+        background: rgb(10 13 18 / 0.88);
+        backdrop-filter: blur(16px);
+      }
+
+      nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 68px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+      }
+
+      .mark {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border: 1px solid rgb(213 172 79 / 0.5);
+        border-radius: 8px;
+        background: linear-gradient(135deg, rgb(213 172 79 / 0.28), rgb(82 208 216 / 0.12));
+        color: var(--gold);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 22px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .nav-links a,
+      .button {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(380px, 520px);
+        gap: 52px;
+        align-items: center;
+        min-height: calc(100vh - 68px);
+        padding: 64px 0 76px;
+      }
+
+      .eyebrow {
+        margin: 0 0 16px;
+        color: var(--gold);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 720px;
+        font-size: clamp(44px, 6vw, 78px);
+        line-height: 0.96;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 690px;
+        margin: 24px 0 0;
+        color: var(--muted);
+        font-size: 19px;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 32px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        padding: 0 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--surface-2);
+        font-weight: 700;
+      }
+
+      .button.primary {
+        border-color: rgb(213 172 79 / 0.55);
+        background: var(--gold);
+        color: #11100a;
+      }
+
+      .trust {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 36px;
+      }
+
+      .trust-item,
+      .feature,
+      .step,
+      .note {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--surface);
+      }
+
+      .trust-item {
+        padding: 14px;
+      }
+
+      .trust-item strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .trust-item span,
+      .feature p,
+      .step span,
+      .note p,
+      .section-head p {
+        color: var(--muted);
+      }
+
+      .app-frame {
+        overflow: hidden;
+        border: 1px solid rgb(255 255 255 / 0.12);
+        border-radius: 12px;
+        background: var(--surface);
+        box-shadow: 0 32px 90px rgb(0 0 0 / 0.42);
+      }
+
+      .frame-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        background: #0f141d;
+      }
+
+      .dots {
+        display: flex;
+        gap: 7px;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--line);
+      }
+
+      .frame-title {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .app-preview {
+        display: grid;
+        grid-template-columns: 118px 1fr;
+        min-height: 470px;
+      }
+
+      .side {
+        padding: 16px 12px;
+        border-right: 1px solid var(--line);
+        background: #0e141d;
+      }
+
+      .side-item {
+        height: 34px;
+        margin-bottom: 8px;
+        border-radius: 7px;
+        background: var(--surface-2);
+      }
+
+      .side-item.active {
+        border: 1px solid rgb(213 172 79 / 0.32);
+        background: rgb(213 172 79 / 0.2);
+      }
+
+      .preview-main {
+        padding: 18px;
+      }
+
+      .search {
+        height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #0e141d;
+      }
+
+      .score-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .score {
+        min-height: 86px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 13px;
+        background: var(--surface-2);
+      }
+
+      .score span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .score strong {
+        display: block;
+        margin-top: 8px;
+        font-size: 26px;
+      }
+
+      .match-list {
+        display: grid;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .match {
+        display: grid;
+        grid-template-columns: 48px 1fr 66px;
+        gap: 12px;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px;
+        background: #0f151f;
+      }
+
+      .avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--gold), var(--cyan));
+      }
+
+      .bar {
+        height: 8px;
+        border-radius: 999px;
+        background: #263142;
+      }
+
+      .bar + .bar {
+        width: 68%;
+        margin-top: 8px;
+      }
+
+      .place {
+        text-align: right;
+        color: var(--green);
+        font-size: 22px;
+        font-weight: 900;
+      }
+
+      section {
+        padding: 72px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .section-head {
+        max-width: 720px;
+        margin-bottom: 28px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 34px;
+        letter-spacing: 0;
+      }
+
+      .section-head p {
+        margin: 12px 0 0;
+        font-size: 17px;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+
+      .feature {
+        min-height: 224px;
+        padding: 20px;
+      }
+
+      .feature-icon {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        background: rgb(213 172 79 / 0.15);
+        color: var(--gold);
+        font-weight: 900;
+      }
+
+      .feature h3,
+      .note h3 {
+        margin: 0 0 10px;
+        font-size: 19px;
+      }
+
+      .feature p,
+      .note p {
+        margin: 0;
+      }
+
+      .workflow {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        counter-reset: step;
+      }
+
+      .step {
+        min-height: 170px;
+        padding: 20px;
+        counter-increment: step;
+      }
+
+      .step::before {
+        content: counter(step);
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        margin-bottom: 18px;
+        border-radius: 50%;
+        background: var(--gold);
+        color: #141008;
+        font-weight: 900;
+      }
+
+      .step strong {
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .privacy {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+
+      .note {
+        padding: 20px;
+      }
+
+      footer {
+        padding: 34px 0 46px;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      @media (max-width: 920px) {
+        .hero,
+        .privacy {
+          grid-template-columns: 1fr;
+        }
+
+        .feature-grid,
+        .workflow {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .shell { padding: 0 16px; }
+        .nav-links { display: none; }
+        .hero { padding: 44px 0 60px; }
+        h1 { font-size: 43px; }
+        .lead { font-size: 17px; }
+        .trust,
+        .feature-grid,
+        .workflow,
+        .score-row {
+          grid-template-columns: 1fr;
+        }
+
+        .app-preview {
+          grid-template-columns: 1fr;
+        }
+
+        .side {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="shell">
+        <nav aria-label="주요 메뉴">
+          <div class="brand">
+            <span class="mark">T</span>
+            <span>Tactica TFT</span>
+          </div>
+          <div class="nav-links">
+            <a href="#features">기능</a>
+            <a href="#workflow">사용 흐름</a>
+            <a href="#data">데이터</a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <div class="shell">
+        <section class="hero" aria-label="Tactica TFT 소개">
+          <div>
+            <p class="eyebrow">TFT 전적 분석과 덱 판단 도구</p>
+            <h1>게임 기록을 읽고 다음 판단을 준비합니다.</h1>
+            <p class="lead">
+              Tactica TFT는 Teamfight Tactics 플레이어가 자신의 전적, 최근 경기,
+              덱 구성, 유닛, 특성, 아이템 흐름을 한 화면에서 확인하도록 돕는
+              웹 기반 companion app입니다.
+            </p>
+            <div class="actions">
+              <a class="button primary" href="#features">기능 살펴보기</a>
+              <a class="button" href="#workflow">사용 흐름 보기</a>
+            </div>
+            <div class="trust">
+              <div class="trust-item">
+                <strong>전적 요약</strong>
+                <span>평균 등수, Top 4, 1등 횟수</span>
+              </div>
+              <div class="trust-item">
+                <strong>경기 복기</strong>
+                <span>유닛, 특성, 증강, 아이템 구성</span>
+              </div>
+              <div class="trust-item">
+                <strong>메타 탐색</strong>
+                <span>덱과 챔피언 정보를 빠르게 비교</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="app-frame" aria-label="Tactica TFT 앱 미리보기">
+            <div class="frame-top">
+              <div class="dots">
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+              </div>
+              <span class="frame-title">Profile Analysis</span>
+            </div>
+            <div class="app-preview">
+              <aside class="side" aria-hidden="true">
+                <div class="side-item active"></div>
+                <div class="side-item"></div>
+                <div class="side-item"></div>
+                <div class="side-item"></div>
+                <div class="side-item"></div>
+              </aside>
+              <div class="preview-main">
+                <div class="search"></div>
+                <div class="score-row">
+                  <div class="score"><span>Average</span><strong>3.8</strong></div>
+                  <div class="score"><span>Top 4</span><strong>62%</strong></div>
+                  <div class="score"><span>Games</span><strong>20</strong></div>
+                </div>
+                <div class="match-list">
+                  <div class="match">
+                    <div class="avatar"></div>
+                    <div><div class="bar"></div><div class="bar"></div></div>
+                    <div class="place">#2</div>
+                  </div>
+                  <div class="match">
+                    <div class="avatar"></div>
+                    <div><div class="bar"></div><div class="bar"></div></div>
+                    <div class="place">#4</div>
+                  </div>
+                  <div class="match">
+                    <div class="avatar"></div>
+                    <div><div class="bar"></div><div class="bar"></div></div>
+                    <div class="place" style="color: var(--red)">#7</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="features">
+          <div class="section-head">
+            <h2>플레이어가 바로 보는 정보</h2>
+            <p>검색, 복기, 비교에 필요한 화면을 분리해 TFT 기록을 빠르게 읽을 수 있게 구성합니다.</p>
+          </div>
+          <div class="feature-grid">
+            <article class="feature">
+              <div class="feature-icon">1</div>
+              <h3>Riot ID 전적 검색</h3>
+              <p>Riot ID와 태그를 입력하면 TFT 랭크 정보와 최근 경기 흐름을 확인합니다.</p>
+            </article>
+            <article class="feature">
+              <div class="feature-icon">2</div>
+              <h3>매치 히스토리 분석</h3>
+              <p>각 경기의 등수, 유닛, 특성, 아이템, 증강 정보를 정리해 복기합니다.</p>
+            </article>
+            <article class="feature">
+              <div class="feature-icon">3</div>
+              <h3>덱과 메타 탐색</h3>
+              <p>덱 구성과 챔피언 정보를 비교해 다음 게임의 선택지를 좁힙니다.</p>
+            </article>
+            <article class="feature">
+              <div class="feature-icon">4</div>
+              <h3>상대 덱 비교</h3>
+              <p>내 조합과 상대 조합의 전투 구도를 비교해 위험한 매치업을 표시합니다.</p>
+            </article>
+            <article class="feature">
+              <div class="feature-icon">5</div>
+              <h3>승률 추정 표시</h3>
+              <p>알고리즘 기반의 추정값을 정보로 제공하며, 플레이 입력은 사용자가 직접 결정합니다.</p>
+            </article>
+            <article class="feature">
+              <div class="feature-icon">6</div>
+              <h3>한국어 TFT 데이터</h3>
+              <p>챔피언, 특성, 아이템, 증강 정보를 한국어 기준으로 표시합니다.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="workflow">
+          <div class="section-head">
+            <h2>사용 흐름</h2>
+            <p>플레이어가 매번 필요한 정보를 적은 단계로 확인하도록 설계합니다.</p>
+          </div>
+          <div class="workflow">
+            <div class="step">
+              <strong>Riot ID 검색</strong>
+              <span>플레이어 프로필과 TFT 랭크 정보를 불러옵니다.</span>
+            </div>
+            <div class="step">
+              <strong>최근 경기 확인</strong>
+              <span>최근 매치의 등수와 조합 흐름을 요약합니다.</span>
+            </div>
+            <div class="step">
+              <strong>덱 구성 비교</strong>
+              <span>유닛, 특성, 아이템, 증강을 함께 확인합니다.</span>
+            </div>
+            <div class="step">
+              <strong>다음 판단 준비</strong>
+              <span>정보를 참고해 배치, 전환, 아이템 선택을 직접 결정합니다.</span>
+            </div>
+          </div>
+        </section>
+
+        <section id="data">
+          <div class="section-head">
+            <h2>데이터와 공정성</h2>
+            <p>Tactica TFT는 플레이어가 직접 판단할 수 있도록 정보를 보여주는 도구입니다.</p>
+          </div>
+          <div class="privacy">
+            <div class="note">
+              <h3>Riot API 기반</h3>
+              <p>프로필, 랭크, 매치 기록, TFT 정적 데이터는 Riot API와 Data Dragon 데이터를 사용합니다.</p>
+            </div>
+            <div class="note">
+              <h3>자동 플레이 없음</h3>
+              <p>게임 클라이언트를 제어하거나 입력을 전송하지 않으며, 봇·매크로·클라이언트 변조 기능을 제공하지 않습니다.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <div class="shell">
+        Tactica TFT is not endorsed by Riot Games and does not reflect the views or opinions of
+        Riot Games or anyone officially involved in producing or managing Riot Games properties.
+        Riot Games and all associated properties are trademarks or registered trademarks of Riot Games, Inc.
+      </div>
+    </footer>
+  </body>
+</html>
