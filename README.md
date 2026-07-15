@@ -19,6 +19,12 @@ Claude Code · OpenAI Codex · Gemini CLI · Ollama(Gemma)를 한 창에서 통�
 
 설치 파일을 실행한 뒤 시작 메뉴 또는 바탕화면 바로가기로 실행합니다.
 
+현재 검증 배포: **v0.1.18**
+
+- Windows PowerShell 5.1에서 긴 한국어 규칙이 Codex 인수로 분리되던 문제 수정
+- Codex 브리지를 콘솔 Node로 실행해 `stdin is not a terminal` 오류 수정
+- 설치본에서 한국어 규칙 주입과 Codex 대화형 세션 정상 작동 확인
+
 ## 시스템 요구사항
 
 | 항목 | 요구 |
