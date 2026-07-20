@@ -74,7 +74,7 @@ Electron으로 패키징된 unsigned exe는 일부 백신이 의심 파일로 �
 
 ## 사용자 데이터 위치
 
-- 워크스페이스·사용자 규칙·코드/시각 주석·AI 작업함·품질 평가 기록: `%APPDATA%\AI Terminal Hub\`
+- 워크스페이스·사용자 규칙·코드/시각 주석·AI 작업함·품질 평가 기록: `%APPDATA%\ai-terminal-hub\`
 - 에이전트 정의: `%USERPROFILE%\.claude\agents\` (Claude Code 표준 위치)
 
 앱을 삭제해도 데이터는 보존됩니다. 완전 제거는 위 폴더 직접 삭제.
