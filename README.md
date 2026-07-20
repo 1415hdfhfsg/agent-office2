@@ -20,12 +20,13 @@ Claude Code · OpenAI Codex · Gemini CLI · Ollama(Gemma)를 한 창에서 통�
 
 설치 파일을 실행한 뒤 시작 메뉴 또는 바탕화면 바로가기로 실행합니다.
 
-현재 검증 배포: **v0.1.21**
+현재 검증 배포: **v0.1.22**
 
-- 종합평가를 앱 자체 평가가 아닌 현재 선택 프로젝트 평가로 개편
-- xterm viewport 폭 오류를 수정해 터미널 전체 영역의 휠 스크롤 복원
-- Ponytail 최소 구현 규칙을 모든 Terminal Hub AI 모델과 이어하기 세션에 적용
-- Ponytail MIT 저작권 고지를 설치 패키지에 포함
+- 앱 안에서 최신 버전을 내려받고 종료 후 자동 설치·재실행
+- 자동 업데이트 실패 시 기존 최신 설치기 직접 다운로드 기능 유지
+- 실행 중인 터미널 수를 안내한 뒤 사용자 승인으로 설치
+- GitHub 릴리스의 `latest.yml`·blockmap으로 버전·무결성·차등 다운로드 지원
+- 앱 제작자 메타데이터를 GitHub 이름 `1415hdfhfsg`로 통일
 
 ## 시스템 요구사항
 
@@ -127,7 +128,7 @@ Visual Review에서 영역별 지시를 저장한 뒤 오른쪽의 **AI에게 �
 
 ## 라이선스
 
-**Copyright (c) 2025 plz_. All Rights Reserved.**
+**Copyright (c) 2025-2026 1415hdfhfsg. All Rights Reserved.**
 
 개인적 평가·학습·비상업적 사용만 허용. 무단 수정·재배포·상업적 이용·판매 금지.
 자세한 조건은 `LICENSE` 파일 참조.
